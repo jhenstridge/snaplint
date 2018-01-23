@@ -16,7 +16,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
-import contextlib
 import importlib
 import pkgutil
 import os
@@ -94,8 +93,11 @@ def main():
     for rule in rules_to_run:
         module = None
 
-        with contextlib.suppress(ImportError):
+        try:
             module = importlib.import_module('snaplint.rules.{}'.format(rule))
+        except ImportError as ex:
+            if ex.name != 'snaplint.rules.{}'.format(rule):
+                raise
         if not module:
             print("Cannot find rule {}".format(rule))
             sys.exit(1)
