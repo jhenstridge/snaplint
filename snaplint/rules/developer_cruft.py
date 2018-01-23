@@ -32,9 +32,6 @@ NAUGHTY_DIRS = [
 
 class DeveloperCruft(Rule):
 
-    def __init__(self, path):
-        super().__init__(path)
-
     def scan(self):
         print('Scanning {} for developer cruft...'.format(self.path), end=' ')
 

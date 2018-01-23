@@ -25,22 +25,24 @@ import textwrap
 
 
 def _snap_path(path):
-    if os.path.exists(path):
-        if os.path.exists(os.path.join(path, 'snapcraft.yaml')):
-            # a valid snap directory should contain meta/snap.yaml
-            if os.path.exists(os.path.join(path, 'prime', 'meta',
-                                           'snap.yaml')):
-                return os.path.join(path, 'prime')
-            else:
-                print("Please run 'snapcraft prime' in your project to"
-                      " generate a valid snap directory")
-        else:
-            print("%s is not a valid snapcraft directory" % path)
-            return None
-    else:
+    if not os.path.exists(path):
         print("%s does not exist" % path)
         return None
 
+    if os.path.exists(os.path.join(path, 'meta', 'snap.yaml')):
+        return path
+    elif (os.path.exists(os.path.join(path, 'snapcraft.yaml')) or
+          os.path.exists(os.path.join(path, '.snapcraft.yaml')) or
+          os.path.exists(os.path.join(path, 'snap', 'snapcraft.yaml'))):
+        if os.path.exists(os.path.join(path, 'prime', 'meta',
+                                       'snap.yaml')):
+            return os.path.join(path, 'prime')
+        else:
+            print("Please run 'snapcraft prime' in your project to"
+                  " generate a valid snap directory")
+    else:
+        print("%s is not a valid snap or snapcraft directory" % path)
+        return None
 
 def _parse_args():
     parser = argparse.ArgumentParser(
@@ -81,7 +83,11 @@ if __name__ == '__main__':
 
     # This logic stolen shamelessly from snapcraft
     import snaplint
+    from snaplint.snapinfo import SnapInfo
     import snaplint.rules
+
+    info = SnapInfo(snap)
+
     rules_to_run = []
     for importer, modname, is_package in pkgutil.iter_modules(
             snaplint.rules.__path__):
@@ -104,7 +110,7 @@ if __name__ == '__main__':
             print("Invalid rule: {}".format(rule))
             sys.exit(1)
 
-        scanner_inst = scanner(snap)
+        scanner_inst = scanner(info)
         if not scanner_inst.scan():
             fail = True
 

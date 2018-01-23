@@ -66,9 +66,6 @@ class LibraryRule(Rule):
 
         return (elves, roots)
 
-    def __init__(self, path):
-        super().__init__(path)
-
     def scan(self):
         '''Examine ELF files in the snap and check that only necessary shared
         libraries are included '''

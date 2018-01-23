@@ -27,16 +27,13 @@ class CopyrightRule(Rule):
     '''Scan for copyright files in usr/share/doc within the snap. System
     Enablement Team policy requires that these files be present'''
 
-    def __init__(self, path):
-        super().__init__(path)
-
     def _read_snapcraft_yaml(self):
         snapcraft = None
 
-        snapcraft_path = os.path.join(self.path, '..', 'snapcraft.yaml')
+        snapcraft_path = os.path.join(self.path, 'snap', 'snapcraft.yaml')
         if os.path.exists(snapcraft_path):
-            with open(os.path.join(self.path, '..', 'snapcraft.yaml')) as sc:
-                snapcraft = yaml.load(sc)
+            with open(snapcraft_path, 'rb') as sc:
+                snapcraft = yaml.safe_load(sc)
 
         return snapcraft
 
