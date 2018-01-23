@@ -23,6 +23,9 @@ import os
 import sys
 import textwrap
 
+import snaplint
+import snaplint.snapinfo
+import snaplint.rules
 
 def _snap_path(path):
     if not os.path.exists(path):
@@ -68,25 +71,16 @@ def _get_scanner(module):
             continue
         return attr
 
-topdir = os.path.abspath(os.path.join(__file__, '..', '..'))
-if os.path.exists(os.path.join(topdir, 'setup.py')):
-    # Run from checkout
-    sys.path = [topdir] + sys.path
-
-if __name__ == '__main__':
-
+def main():
     args = _parse_args()
     snap = _snap_path(args.project)
     if snap is None:
         print("Please specify a valid snapcraft directory")
         sys.exit(1)
 
-    # This logic stolen shamelessly from snapcraft
-    import snaplint
-    from snaplint.snapinfo import SnapInfo
-    import snaplint.rules
+    info = snaplint.snapinfo.SnapInfo(snap)
 
-    info = SnapInfo(snap)
+    # This logic stolen shamelessly from snapcraft
 
     rules_to_run = []
     for importer, modname, is_package in pkgutil.iter_modules(
@@ -118,3 +112,6 @@ if __name__ == '__main__':
         sys.exit(1)
     else:
         sys.exit(0)
+
+if __name__ == '__main__':
+    main()
